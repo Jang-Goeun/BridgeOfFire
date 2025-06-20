@@ -15,12 +15,12 @@ public class CameraController : MonoBehaviour
     {
         Vector3 playerPos = this.player.transform.position;
 
-        if (!shouldFollow && playerPos.x > 0f && playerPos.x < 45)
+        if (!shouldFollow && playerPos.x > 0f && playerPos.x < 53)
         {
             shouldFollow = true;
         }
         
-        if(shouldFollow && (playerPos.x < 0f || playerPos.x > 45))
+        if(shouldFollow && (playerPos.x < 0f || playerPos.x > 53))
         {
             shouldFollow = false;
         }
