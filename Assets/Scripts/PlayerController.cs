@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using static UnityEngine.RuleTile.TilingRuleOutput;
 public class PlayerController : MonoBehaviour
 {
     Rigidbody2D rigid2D;
@@ -10,11 +11,18 @@ public class PlayerController : MonoBehaviour
     float walkForce = 30.0f;
     float maxWalkSpeed = 2.0f;
 
+    public AudioClip gameClearSE;
+    public AudioClip gameOverSE;
+    AudioSource aud;
+
+    bool isGameOver = false;
+
     void Start()
     {
         Application.targetFrameRate = 60;
         this.rigid2D = GetComponent<Rigidbody2D>();
         this.animator = GetComponent<Animator>();
+        this.aud = GetComponent<AudioSource>();
     }
 
     void Update()
@@ -45,16 +53,42 @@ public class PlayerController : MonoBehaviour
         {
             this.animator.speed = speedx / 2.0f;
         }
-    
-        // 플레이어 추락
-        if(transform.position.y < -10f)
+
+        if (!isGameOver && transform.position.y < -10f)
         {
-            SceneManager.LoadScene("GameOver");
+            isGameOver = true;
+            this.rigid2D.velocity = Vector2.zero;
+            this.rigid2D.bodyType = RigidbodyType2D.Kinematic;
+            StartCoroutine(GameOverCoroutine());
         }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        StartCoroutine(GameClearCoroutine());
+    }
+
+    IEnumerator GameOverCoroutine()
+    {
+        Time.timeScale = 1f;
+        AudioSource bgmAud = GameObject.Find("BGMPlayer").GetComponent<AudioSource>();
+        bgmAud.Stop();
+        this.aud.PlayOneShot(gameOverSE);
+        yield return new WaitForSecondsRealtime(gameOverSE.length);
+        bgmAud.Play();
+        SceneManager.LoadScene("GameOver");
+    }
+
+    IEnumerator GameClearCoroutine()
+    {
+        Time.timeScale = 1f;
+        AudioSource bgmAud = GameObject.Find("BGMPlayer").GetComponent<AudioSource>();
+        bgmAud.Stop();
+        this.aud.PlayOneShot(gameClearSE);
+        yield return new WaitForSecondsRealtime(gameClearSE.length);
+        bgmAud.Play();
         SceneManager.LoadScene("GameClear");
     }
 }
+
+
